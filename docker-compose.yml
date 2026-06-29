@@ -1,0 +1,55 @@
+services:
+  emqx:
+    image: emqx/emqx:5.7.0
+    container_name: emqx-local
+    environment:
+      # ===== Dashboard =====
+      - EMQX_DASHBOARD__DEFAULT_PASSWORD=${EMQX_DASHBOARD_PASSWORD}
+
+      # ===== MQTT TCP =====
+      - EMQX_LISTENERS__TCP__DEFAULT__BIND=0.0.0.0:1883
+
+      # ===== MQTT SSL =====
+      - EMQX_LISTENERS__SSL__DEFAULT__BIND=0.0.0.0:8883
+
+      # ===== WebSocket =====
+      - EMQX_LISTENERS__WS__DEFAULT__BIND=0.0.0.0:8083
+
+      # ===== WebSocket SSL =====
+      - EMQX_LISTENERS__WSS__DEFAULT__BIND=0.0.0.0:8084
+
+      # ======= Configuración SSL (certificados autofirmados) =======
+      - EMQX_LISTENERS__SSL__DEFAULT__SSL_OPTIONS__CERTFILE=/opt/emqx/etc/certs/cert.pem
+      - EMQX_LISTENERS__SSL__DEFAULT__SSL_OPTIONS__KEYFILE=/opt/emqx/etc/certs/key.pem
+      - EMQX_LISTENERS__SSL__DEFAULT__SSL_OPTIONS__CACERTFILE=/opt/emqx/etc/certs/cacert.pem
+
+      - EMQX_LISTENERS__WSS__DEFAULT__SSL_OPTIONS__CERTFILE=/opt/emqx/etc/certs/cert.pem
+      - EMQX_LISTENERS__WSS__DEFAULT__SSL_OPTIONS__KEYFILE=/opt/emqx/etc/certs/key.pem
+      - EMQX_LISTENERS__WSS__DEFAULT__SSL_OPTIONS__CACERTFILE=/opt/emqx/etc/certs/cacert.pem
+
+      # ======= Autenticación =======
+      - EMQX_ALLOW_ANONYMOUS=false
+      - EMQX_AUTHENTICATION__1__MECHANISM=password_based
+      - EMQX_AUTHENTICATION__1__BACKEND=built_in_database
+
+    volumes:
+      - ./certs:/opt/emqx/etc/certs
+      - emqx_data:/opt/emqx/data
+      - emqx_log:/opt/emqx/log
+
+    ports:
+      - "1883:1883"
+      - "8883:8883"
+      - "8083:8083"
+      - "8084:8084"
+      - "18083:18083"
+
+    restart: unless-stopped
+
+volumes:
+  emqx_data:
+  emqx_log:
+
+networks:
+  senado-network:
+    driver: bridge
