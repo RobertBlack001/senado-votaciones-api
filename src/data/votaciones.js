@@ -15,15 +15,11 @@ const votaciones = [
     new Votacion({
 
         id: 1,
-
-        estado: EstadoVotacion.ABIERTA,
-
-        fechaInicio: ahora,
-
-        fechaFin: new Date(
-            ahora.getTime() + (5 * MINUTE)
-        )
-
+        asunto: 'Reforma al artículo 123 Constitucional',
+        duracionMinutos: 5,
+        estado: EstadoVotacion.CERRADA,
+        fechaInicio: null,
+        fechaFin: null
     })
 
 ];

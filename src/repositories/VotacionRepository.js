@@ -1,6 +1,18 @@
 import votaciones from '../data/votaciones.js';
+import EstadoVotacion from '../common/enums/EstadoVotacion.js';
 
 class VotacionRepository {
+
+    async getOpen() {
+
+    return (
+            votaciones.find(
+                votacion =>
+                    votacion.estado === EstadoVotacion.ABIERTA
+            ) || null
+        );
+
+    }
 
     async getById(id) {
 
@@ -20,6 +32,13 @@ class VotacionRepository {
 
     async save(votacion) {
 
+        // Simula el comportamiento de un AUTO_INCREMENT
+        const nextId = votaciones.length === 0
+            ? 1
+            : Math.max(...votaciones.map(item => item.id)) + 1;
+
+        votacion.id = nextId;
+
         votaciones.push(votacion);
 
         return votacion;
@@ -33,9 +52,7 @@ class VotacionRepository {
         );
 
         if (index === -1) {
-
             return null;
-
         }
 
         votaciones[index] = votacion;
@@ -51,9 +68,7 @@ class VotacionRepository {
         );
 
         if (index === -1) {
-
             return false;
-
         }
 
         votaciones.splice(index, 1);
