@@ -24,13 +24,20 @@ class Votacion {
     abrir(fechaInicio, duracionMinutos) {
 
         this.duracionMinutos = duracionMinutos;
+
         this.fechaInicio = fechaInicio;
-        
+
         this.fechaFin = new Date(
             fechaInicio.getTime() + (duracionMinutos * MINUTE)
         );
 
         this.estado = EstadoVotacion.ABIERTA;
+
+    }
+
+    cerrar() {
+
+        this.estado = EstadoVotacion.CERRADA;
 
     }
 

@@ -4,6 +4,7 @@ import EstadoVotacionResponse from '../dtos/responses/EstadoVotacionResponse.js'
 import NotFoundException from '../exceptions/NotFoundException.js';
 import ConflictException from '../exceptions/ConflictException.js';
 import { DURACION_DEFAULT_MINUTOS } from '../common/constants/Votacion.js';
+import EstadoVotacion from '../common/enums/EstadoVotacion.js';
 
 class VotacionService {
 
@@ -12,21 +13,21 @@ class VotacionService {
         const votacion = await VotacionRepository.getById(id);
 
         if (!votacion) {
+
             throw new NotFoundException(
                 `No existe la votación con id ${id}.`
             );
+
         }
 
-        let segundosRestantes = 0;
+        await this.actualizarEstado(votacion);
 
-        if (votacion.fechaFin) {
-
-            segundosRestantes = DateUtils.secondsBetween(
+        const segundosRestantes = votacion.fechaFin
+            ? DateUtils.secondsBetween(
                 DateUtils.now(),
                 votacion.fechaFin
-            );
-
-        }
+            )
+            : 0;
 
         return new EstadoVotacionResponse(
             votacion,
@@ -38,6 +39,8 @@ class VotacionService {
     async abrir(id, request) {
 
         const votacion = await VotacionRepository.getById(id);
+
+        await this.actualizarEstado(votacion);
 
         if (!votacion) {
             throw new NotFoundException(
@@ -80,6 +83,30 @@ class VotacionService {
             votacion,
             segundosRestantes
         );
+
+    }
+
+    /**
+     * Sincroniza el estado de la votación con la hora del servidor.
+     *
+     * Si la votación ya expiró, la cierra automáticamente.
+     */
+    async actualizarEstado(votacion) {
+
+        if (
+            votacion.estado === EstadoVotacion.ABIERTA &&
+            votacion.fechaFin &&
+            DateUtils.isExpired(votacion.fechaFin)
+        ) {
+
+            votacion.cerrar();
+
+            await VotacionRepository.update(votacion);
+
+            // TODO:
+            // Publicar MQTT de cierre automático
+
+        }
 
     }
 
