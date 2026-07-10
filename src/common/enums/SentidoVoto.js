@@ -1,4 +1,4 @@
-const TipoVoto = Object.freeze({
+const SentidoVoto = Object.freeze({
 
     FAVOR: 'FAVOR',
     CONTRA: 'CONTRA',
@@ -6,4 +6,4 @@ const TipoVoto = Object.freeze({
 
 });
 
-export default TipoVoto;
+export default SentidoVoto;

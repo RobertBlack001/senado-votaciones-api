@@ -15,4 +15,11 @@ router.post(
     asyncHandler(VotacionController.abrir)
 );
 
+router.post(
+    '/api/v1/votacion/:id/votar',
+    asyncHandler(
+        VotacionController.votar
+    )
+);
+
 export default router;

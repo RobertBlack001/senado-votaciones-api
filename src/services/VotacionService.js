@@ -1,26 +1,19 @@
-import VotacionRepository from '../repositories/VotacionRepository.js';
 import DateUtils from '../utils/DateUtils.js';
+import VotacionRepository from '../repositories/VotacionRepository.js';
+import VotoRepository from '../repositories/VotoRepository.js';
+import Voto from '../entities/Voto.js';
+import EstadoVotacion from '../common/enums/EstadoVotacion.js';
+import SentidoVoto from '../common/enums/SentidoVoto.js';
 import EstadoVotacionResponse from '../dtos/responses/EstadoVotacionResponse.js';
 import NotFoundException from '../exceptions/NotFoundException.js';
 import ConflictException from '../exceptions/ConflictException.js';
 import { DURACION_DEFAULT_MINUTOS } from '../common/constants/Votacion.js';
-import EstadoVotacion from '../common/enums/EstadoVotacion.js';
 
 class VotacionService {
 
     async obtenerEstado(id) {
 
-        const votacion = await VotacionRepository.getById(id);
-
-        if (!votacion) {
-
-            throw new NotFoundException(
-                `No existe la votación con id ${id}.`
-            );
-
-        }
-
-        await this.actualizarEstado(votacion);
+        const votacion = await this.obtenerVotacion(id);
 
         const segundosRestantes = votacion.fechaFin
             ? DateUtils.secondsBetween(
@@ -107,6 +100,89 @@ class VotacionService {
             // Publicar MQTT de cierre automático
 
         }
+
+    }
+
+    async votar(idVotacion, request) {
+
+        const votacion =
+            await this.obtenerVotacion(idVotacion);
+
+        if (
+            votacion.estado !== EstadoVotacion.ABIERTA
+        ) {
+
+            throw new ConflictException(
+                'La votación se encuentra cerrada.'
+            );
+
+        }
+
+        let voto =
+            await VotoRepository.getByVotacionAndSenador(
+                idVotacion,
+                request.idSenador
+            );
+
+        if (voto) {
+
+            if (voto.sentido === request.sentido) {
+
+                return;
+
+            }
+
+            voto.cambiarSentido(
+                request.sentido
+            );
+
+            await VotoRepository.update(voto);
+
+        } else {
+
+            voto = new Voto({
+
+                idVotacion: Number(idVotacion),
+
+                idSenador: Number(request.idSenador),
+
+                sentido: request.sentido
+
+            });
+
+            await VotoRepository.insert(voto);
+
+        }
+
+        // TODO
+        // Calcular resultados
+
+        // TODO
+        // Publicar MQTT
+
+    }
+
+    /**
+     * Obtiene una votación válida y sincroniza su estado.
+     *
+     * @param {number} id
+     * @returns {Promise<Votacion>}
+     */
+    async obtenerVotacion(id) {
+
+        const votacion = await VotacionRepository.getById(id);
+
+        if (!votacion) {
+
+            throw new NotFoundException(
+                `No existe la votación con id ${id}.`
+            );
+
+        }
+
+        await this.actualizarEstado(votacion);
+
+        return votacion;
 
     }
 

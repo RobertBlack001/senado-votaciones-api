@@ -5,11 +5,17 @@ class Response {
      */
     static success(res, data = null, message = 'Operación realizada correctamente') {
 
-        return res.status(200).json({
+        const response = {
             success: true,
-            message,
-            data
-        });
+            message
+        };
+
+        if (data !== undefined && data !== null) {
+            response.data = data;
+        }
+
+        return res.status(200).json(response);
+
 
     }
 
@@ -18,11 +24,17 @@ class Response {
      */
     static created(res, data = null, message = 'Recurso creado correctamente') {
 
-        return res.status(201).json({
+        const response = {
             success: true,
-            message,
-            data
-        });
+            message
+        };
+
+        if (data !== undefined && data !== null) {
+            response.data = data;
+        }
+
+        return res.status(201xx).json(response);
+
 
     }
 

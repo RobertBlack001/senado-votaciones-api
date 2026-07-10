@@ -1,6 +1,7 @@
 import VotacionService from '../services/VotacionService.js';
 import AbrirVotacionRequest from '../dtos/requests/AbrirVotacionRequest.js';
 import Response from '../utils/Response.js';
+import RegistrarVotoRequest from '../dtos/requests/RegistrarVotoRequest.js';
 
 class VotacionController {
 
@@ -30,6 +31,26 @@ class VotacionController {
             res,
             data,
             'Votación iniciada correctamente.'
+        );
+
+    }
+
+    async votar(req, res) {
+
+        const request =
+            new RegistrarVotoRequest(
+                req.body
+            );
+
+        await VotacionService.votar(
+            req.params.id,
+            request
+        );
+
+        return Response.success(
+            res,
+            null,
+            'Voto registrado correctamente.'
         );
 
     }
