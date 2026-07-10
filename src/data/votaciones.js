@@ -16,7 +16,7 @@ const votaciones = [
 
         id: 1,
         asunto: 'Reforma al artículo 123 Constitucional',
-        duracionMinutos: 5,
+        duracionSegundos: 5,
         estado: EstadoVotacion.CERRADA,
         fechaInicio: null,
         fechaFin: null

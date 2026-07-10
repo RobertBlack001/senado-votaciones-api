@@ -2,7 +2,7 @@ class AbrirVotacionRequest {
 
     constructor(data = {}) {
 
-        this.duracionMinutos = data.duracionMinutos;
+        this.duracionSegundos = data.duracionSegundos;
 
     }
 

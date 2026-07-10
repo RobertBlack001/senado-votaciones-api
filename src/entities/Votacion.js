@@ -6,7 +6,7 @@ class Votacion {
     constructor({
         id,
         asunto,
-        duracionMinutos,
+        duracionSegundos,
         estado,
         fechaInicio,
         fechaFin
@@ -14,21 +14,21 @@ class Votacion {
 
         this.id = id;
         this.asunto = asunto;
-        this.duracionMinutos = duracionMinutos;
+        this.duracionSegundos = duracionSegundos;
         this.estado = estado;
         this.fechaInicio = fechaInicio;
         this.fechaFin = fechaFin;
 
     }
 
-    abrir(fechaInicio, duracionMinutos) {
+    abrir(fechaInicio, duracionSegundos) {
 
-        this.duracionMinutos = duracionMinutos;
+        this.duracionSegundos = duracionSegundos;
 
         this.fechaInicio = fechaInicio;
 
         this.fechaFin = new Date(
-            fechaInicio.getTime() + (duracionMinutos * MINUTE)
+            fechaInicio.getTime() + (duracionSegundos * MINUTE)
         );
 
         this.estado = EstadoVotacion.ABIERTA;

@@ -53,11 +53,11 @@ class VotacionService {
 
         if (votacion.estado !== 'ABIERTA') {
 
-            const duracionMinutos = request.duracionMinutos ?? DURACION_DEFAULT_MINUTOS;
+            const duracionSegundos = request.duracionSegundos ?? DURACION_DEFAULT_MINUTOS;
 
             votacion.abrir(
                 DateUtils.now(),
-                duracionMinutos
+                duracionSegundos
             );
 
             await VotacionRepository.update(votacion);
