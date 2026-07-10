@@ -33,7 +33,7 @@ class Response {
             response.data = data;
         }
 
-        return res.status(201xx).json(response);
+        return res.status(201).json(response);
 
 
     }
