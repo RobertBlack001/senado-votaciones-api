@@ -22,4 +22,18 @@ router.post(
     )
 );
 
+router.post(
+    '/api/v1/votacion/:id/cerrar',
+    asyncHandler(
+        VotacionController.cerrar
+    )
+);
+
+router.get(
+    '/api/v1/votacion/:id/resultados',
+    asyncHandler(
+        VotacionController.obtenerResultados
+    )
+);
+
 export default router;

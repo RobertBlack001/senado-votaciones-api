@@ -41,6 +41,17 @@ const SQL_UPDATE = `
     WHERE id = ?;
 `;
 
+const SQL_GET_RESULTADOS = `
+    SELECT
+        SUM(CASE WHEN sentido = 1 THEN 1 ELSE 0 END) AS si,
+        SUM(CASE WHEN sentido = 2 THEN 1 ELSE 0 END) AS no,
+        SUM(CASE WHEN sentido = 3 THEN 1 ELSE 0 END) AS abstencion,
+        COUNT(*) AS total
+    FROM votos
+    WHERE id_votacion = ?
+    AND activo = 1;
+`;
+
 class VotoRepository {
 
     async getByVotacionAndLegislador(
@@ -107,6 +118,24 @@ class VotoRepository {
             ]
 
         );
+
+    }
+
+    async obtenerResultados(idVotacion) {
+
+        const row = await Database.first(
+            SQL_GET_RESULTADOS,
+            [idVotacion]
+        );
+
+        return {
+
+            si: Number(row.si ?? 0),
+            no: Number(row.no ?? 0),
+            abstencion: Number(row.abstencion ?? 0),
+            total: Number(row.total ?? 0)
+
+        };
 
     }
 

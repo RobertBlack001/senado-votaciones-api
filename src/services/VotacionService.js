@@ -9,6 +9,7 @@ import EstadoVotacionResponse from '../dtos/responses/EstadoVotacionResponse.js'
 
 import NotFoundException from '../exceptions/NotFoundException.js';
 import ConflictException from '../exceptions/ConflictException.js';
+import ResultadoVotacionResponse from '../dtos/responses/ResultadoVotacionResponse.js';
 
 class VotacionService {
 
@@ -142,7 +143,7 @@ class VotacionService {
         }
 
         // TODO
-        // Calcular resultados
+        // Publicar notificación MQTT para actualizar resultados
 
         // TODO
         // Publicar MQTT
@@ -199,6 +200,68 @@ class VotacionService {
         await this.actualizarEstado(votacion);
 
         return votacion;
+
+    }
+
+    async cerrar(id) {
+
+        const votacion = await this.obtenerVotacion(id);
+
+        if (votacion.estado === EstadoVotacion.PENDIENTE) {
+
+            throw new ConflictException(
+                'La votación aún no ha iniciado.'
+            );
+
+        }
+
+        if (votacion.estado === EstadoVotacion.SUSPENDIDA) {
+
+            throw new ConflictException(
+                'La votación se encuentra suspendida.'
+            );
+
+        }
+
+        if (votacion.estado === EstadoVotacion.CERRADA) {
+
+            throw new ConflictException(
+                'La votación ya se encuentra cerrada.'
+            );
+
+        }
+
+        const fechaCierre = DateUtils.now();
+
+        votacion.cerrar();
+
+        votacion.fechaFin = fechaCierre;
+        votacion.fechaFinManual = fechaCierre;
+
+        await VotacionRepository.update(votacion);
+
+        // TODO
+        // Publicar MQTT de cierre manual
+
+        return new EstadoVotacionResponse(
+            votacion,
+            0
+        );
+
+    }
+
+    async obtenerResultados(id) {
+
+        const votacion =
+            await this.obtenerVotacion(id);
+
+        const resultados =
+            await VotoRepository.obtenerResultados(id);
+
+        return new ResultadoVotacionResponse(
+            votacion,
+            resultados
+        );
 
     }
 

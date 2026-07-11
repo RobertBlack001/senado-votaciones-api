@@ -52,6 +52,38 @@ class VotacionController {
 
     }
 
+    async cerrar(req, res) {
+
+        const { id } = req.params;
+
+        const data = await VotacionService.cerrar(
+            Number(id)
+        );
+
+        return Response.success(
+            res,
+            data,
+            'Votación cerrada correctamente.'
+        );
+
+    }
+
+    async obtenerResultados(req, res) {
+
+        const { id } = req.params;
+
+        const data =
+            await VotacionService.obtenerResultados(
+                Number(id)
+            );
+
+        return Response.success(
+            res,
+            data
+        );
+
+    }
+
 }
 
 export default new VotacionController();
