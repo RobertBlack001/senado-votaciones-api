@@ -1,8 +1,8 @@
 const SentidoVoto = Object.freeze({
 
-    FAVOR: 'FAVOR',
-    CONTRA: 'CONTRA',
-    ABSTENCION: 'ABSTENCION'
+    FAVOR: 1,
+    CONTRA: 2,
+    ABSTENCION: 3
 
 });
 

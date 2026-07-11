@@ -1,1 +1,0 @@
-export const DURACION_DEFAULT_MINUTOS = 3;

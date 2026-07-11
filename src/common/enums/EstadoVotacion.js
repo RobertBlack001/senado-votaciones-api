@@ -1,8 +1,9 @@
 const EstadoVotacion = Object.freeze({
 
-    ABIERTA: 'ABIERTA',
-    CERRADA: 'CERRADA',
-    CANCELADA: 'CANCELADA'
+    PROGRAMADA: 'P',
+    ABIERTA: 'A',
+    SUSPENDIDA: 'S',
+    CERRADA: 'C'
 
 });
 

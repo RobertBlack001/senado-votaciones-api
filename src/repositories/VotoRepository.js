@@ -1,67 +1,112 @@
-import votos from '../data/votos.js';
+import Database from '../database/Database.js';
+import Voto from '../entities/Voto.js';
+
+const SQL_GET_BY_VOTACION_AND_LEGISLADOR = `
+    SELECT
+        id,
+        id_votacion,
+        id_legislador,
+        sentido,
+        activo
+    FROM votos
+    WHERE id_votacion = ?
+      AND id_legislador = ?
+      AND activo = 1
+    LIMIT 1;
+`;
+
+const SQL_INSERT = `
+    INSERT INTO votos (
+
+        id_votacion,
+        id_legislador,
+        sentido,
+        activo
+
+    ) VALUES (
+
+        ?, ?, ?, ?
+
+    );
+`;
+
+const SQL_UPDATE = `
+    UPDATE votos
+    SET
+
+        sentido = ?,
+        activo = ?,
+        updated_at = NOW()
+
+    WHERE id = ?;
+`;
 
 class VotoRepository {
 
-    async getByVotacionAndSenador(
+    async getByVotacionAndLegislador(
         idVotacion,
-        idSenador
+        idLegislador
     ) {
 
-        return (
-            votos.find(
-                voto =>
-                    voto.idVotacion === Number(idVotacion) &&
-                    voto.idSenador === Number(idSenador)
-            ) || null
+        const row = await Database.first(
+
+            SQL_GET_BY_VOTACION_AND_LEGISLADOR,
+            [
+                idVotacion,
+                idLegislador
+            ]
+
         );
+
+        if (!row) {
+
+            return null;
+
+        }
+
+        return new Voto({
+
+            id: row.id,
+            idVotacion: row.id_votacion,
+            idLegislador: row.id_legislador,
+            sentido: row.sentido,
+            activo: row.activo
+
+        });
 
     }
 
     async insert(voto) {
 
-        votos.push(voto);
+        const result = await Database.execute(
 
-        return voto;
+            SQL_INSERT,
+            [
+                voto.idVotacion,
+                voto.idLegislador,
+                voto.sentido,
+                voto.activo
+
+            ]
+
+        );
+
+        voto.id = result.insertId;
 
     }
 
     async update(voto) {
 
-        const index = votos.findIndex(
-            item =>
-                item.idVotacion === voto.idVotacion &&
-                item.idSenador === voto.idSenador
+        await Database.execute(
+
+            SQL_UPDATE,
+            [
+                voto.sentido,
+                voto.activo,
+                voto.id
+            ]
+
         );
-
-        if (index === -1) {
-            return null;
-        }
-
-        votos[index] = voto;
-
-        return voto;
-
-    }
-
-    async countByVotacion(idVotacion) {
-
-        return votos.filter(
-            voto =>
-                voto.idVotacion === Number(idVotacion)
-        ).length;
-
-    }
-
-    async countByVotacionAndSentido(
-        idVotacion,
-        sentido
-    ) {
-
-        return votos.filter(
-            voto =>
-                voto.idVotacion === Number(idVotacion) &&
-                voto.sentido === sentido
-        ).length;
 
     }
 

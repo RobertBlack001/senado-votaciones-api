@@ -1,23 +1,29 @@
 import EstadoVotacion from '../common/enums/EstadoVotacion.js';
-import { MINUTE } from '../common/constants/Time.js';
+import { SECOND } from '../common/constants/Time.js';
 
 class Votacion {
 
     constructor({
         id,
+        idSesion,
         asunto,
         duracionSegundos,
         estado,
         fechaInicio,
-        fechaFin
+        fechaFin,
+        fechaFinManual,
+        observaciones
     }) {
 
         this.id = id;
+        this.idSesion = idSesion;
         this.asunto = asunto;
         this.duracionSegundos = duracionSegundos;
         this.estado = estado;
         this.fechaInicio = fechaInicio;
         this.fechaFin = fechaFin;
+        this.fechaFinManual = fechaFinManual;
+        this.observaciones = observaciones;
 
     }
 
@@ -28,7 +34,7 @@ class Votacion {
         this.fechaInicio = fechaInicio;
 
         this.fechaFin = new Date(
-            fechaInicio.getTime() + (duracionSegundos * MINUTE)
+            fechaInicio.getTime() + (duracionSegundos * SECOND)
         );
 
         this.estado = EstadoVotacion.ABIERTA;

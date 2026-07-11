@@ -1,14 +1,18 @@
 class Voto {
 
     constructor({
+        id,
         idVotacion,
-        idSenador,
-        sentido
+        idLegislador,
+        sentido,
+        activo
     }) {
 
+        this.id = id;
         this.idVotacion = idVotacion;
-        this.idSenador = idSenador;
+        this.idLegislador = idLegislador;
         this.sentido = sentido;
+        this.activo = activo;
 
     }
 

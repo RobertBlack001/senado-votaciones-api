@@ -1,5 +1,4 @@
 import VotacionService from '../services/VotacionService.js';
-import AbrirVotacionRequest from '../dtos/requests/AbrirVotacionRequest.js';
 import Response from '../utils/Response.js';
 import RegistrarVotoRequest from '../dtos/requests/RegistrarVotoRequest.js';
 
@@ -20,11 +19,9 @@ class VotacionController {
     async abrir(req, res) {
 
         const { id } = req.params;
-        const request = new AbrirVotacionRequest(req.body);
 
         const data = await VotacionService.abrir(
-            id,
-            request
+            Number(id)
         );
 
         return Response.success(

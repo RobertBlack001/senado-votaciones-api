@@ -2,7 +2,7 @@ class RegistrarVotoRequest {
 
     constructor(data = {}) {
 
-        this.idSenador = data.idSenador;
+        this.idLegislador = data.idLegislador;
 
         this.sentido = data.sentido;
 

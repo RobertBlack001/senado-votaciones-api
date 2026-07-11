@@ -2,12 +2,13 @@ import DateUtils from '../utils/DateUtils.js';
 import VotacionRepository from '../repositories/VotacionRepository.js';
 import VotoRepository from '../repositories/VotoRepository.js';
 import Voto from '../entities/Voto.js';
+
 import EstadoVotacion from '../common/enums/EstadoVotacion.js';
-import SentidoVoto from '../common/enums/SentidoVoto.js';
+
 import EstadoVotacionResponse from '../dtos/responses/EstadoVotacionResponse.js';
+
 import NotFoundException from '../exceptions/NotFoundException.js';
 import ConflictException from '../exceptions/ConflictException.js';
-import { DURACION_DEFAULT_MINUTOS } from '../common/constants/Votacion.js';
 
 class VotacionService {
 
@@ -15,12 +16,19 @@ class VotacionService {
 
         const votacion = await this.obtenerVotacion(id);
 
-        const segundosRestantes = votacion.fechaFin
-            ? DateUtils.secondsBetween(
+        let segundosRestantes = 0;
+
+        if (
+            votacion.estado === EstadoVotacion.ABIERTA &&
+            votacion.fechaFin
+        ) {
+
+            segundosRestantes = DateUtils.secondsBetween(
                 DateUtils.now(),
                 votacion.fechaFin
-            )
-            : 0;
+            );
+
+        }
 
         return new EstadoVotacionResponse(
             votacion,
@@ -29,21 +37,26 @@ class VotacionService {
 
     }
 
-    async abrir(id, request) {
+    async abrir(id) {
 
         const votacion = await VotacionRepository.getById(id);
 
-        await this.actualizarEstado(votacion);
-
         if (!votacion) {
+
             throw new NotFoundException(
                 `No existe la votación con id ${id}.`
             );
+
         }
+
+        await this.actualizarEstado(votacion);
 
         const votacionAbierta = await VotacionRepository.getOpen();
 
-        if (votacionAbierta && votacionAbierta.id !== votacion.id) {
+        if (
+            votacionAbierta &&
+            votacionAbierta.id !== votacion.id
+        ) {
 
             throw new ConflictException(
                 'Existe otra votación abierta.'
@@ -51,66 +64,41 @@ class VotacionService {
 
         }
 
-        if (votacion.estado !== 'ABIERTA') {
+        if (votacion.estado === EstadoVotacion.ABIERTA) {
 
-            const duracionSegundos = request.duracionSegundos ?? DURACION_DEFAULT_MINUTOS;
-
-            votacion.abrir(
-                DateUtils.now(),
-                duracionSegundos
+            throw new ConflictException(
+                'La votación ya se encuentra abierta.'
             );
-
-            await VotacionRepository.update(votacion);
-
-            // TODO:
-            // Publicar evento MQTT senado/votacion/estado
 
         }
 
-        const segundosRestantes = DateUtils.secondsBetween(
+        if (votacion.estado === EstadoVotacion.CERRADA) {
+
+            throw new ConflictException(
+                'La votación ya fue cerrada.'
+            );
+
+        }
+
+        votacion.abrir(
             DateUtils.now(),
-            votacion.fechaFin
+            votacion.duracionSegundos
         );
+
+        await VotacionRepository.update(votacion);
 
         return new EstadoVotacionResponse(
             votacion,
-            segundosRestantes
+            votacion.duracionSegundos
         );
-
-    }
-
-    /**
-     * Sincroniza el estado de la votación con la hora del servidor.
-     *
-     * Si la votación ya expiró, la cierra automáticamente.
-     */
-    async actualizarEstado(votacion) {
-
-        if (
-            votacion.estado === EstadoVotacion.ABIERTA &&
-            votacion.fechaFin &&
-            DateUtils.isExpired(votacion.fechaFin)
-        ) {
-
-            votacion.cerrar();
-
-            await VotacionRepository.update(votacion);
-
-            // TODO:
-            // Publicar MQTT de cierre automático
-
-        }
 
     }
 
     async votar(idVotacion, request) {
 
-        const votacion =
-            await this.obtenerVotacion(idVotacion);
+        const votacion = await this.obtenerVotacion(idVotacion);
 
-        if (
-            votacion.estado !== EstadoVotacion.ABIERTA
-        ) {
+        if (votacion.estado !== EstadoVotacion.ABIERTA) {
 
             throw new ConflictException(
                 'La votación se encuentra cerrada.'
@@ -118,11 +106,10 @@ class VotacionService {
 
         }
 
-        let voto =
-            await VotoRepository.getByVotacionAndSenador(
-                idVotacion,
-                request.idSenador
-            );
+        let voto = await VotoRepository.getByVotacionAndLegislador(
+            idVotacion,
+            request.idLegislador
+        );
 
         if (voto) {
 
@@ -132,9 +119,7 @@ class VotacionService {
 
             }
 
-            voto.cambiarSentido(
-                request.sentido
-            );
+            voto.cambiarSentido(request.sentido);
 
             await VotoRepository.update(voto);
 
@@ -144,9 +129,11 @@ class VotacionService {
 
                 idVotacion: Number(idVotacion),
 
-                idSenador: Number(request.idSenador),
+                idLegislador: Number(request.idLegislador),
 
-                sentido: request.sentido
+                sentido: request.sentido,
+
+                activo: 1
 
             });
 
@@ -162,12 +149,41 @@ class VotacionService {
 
     }
 
-    /**
-     * Obtiene una votación válida y sincroniza su estado.
-     *
-     * @param {number} id
-     * @returns {Promise<Votacion>}
-     */
+    async actualizarEstado(votacion) {
+
+        if (
+            votacion.estado !== EstadoVotacion.ABIERTA
+        ) {
+
+            return;
+
+        }
+
+        if (
+            !votacion.fechaFin
+        ) {
+
+            return;
+
+        }
+
+        if (
+            !DateUtils.isExpired(votacion.fechaFin)
+        ) {
+
+            return;
+
+        }
+
+        votacion.cerrar();
+
+        await VotacionRepository.update(votacion);
+
+        // TODO
+        // Publicar MQTT de cierre automático
+
+    }
+
     async obtenerVotacion(id) {
 
         const votacion = await VotacionRepository.getById(id);
