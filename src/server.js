@@ -3,6 +3,7 @@ import dotenv from 'dotenv';
 dotenv.config();
 
 import app from './app.js';
+import MQTTClient from './mqtt/index.js';
 
 const PORT = process.env.PORT || 3000;
 
@@ -18,6 +19,8 @@ const server = app.listen(PORT, () => {
     console.log('');
 
 });
+
+await MQTTClient.start();
 
 /**
  * Cierre controlado

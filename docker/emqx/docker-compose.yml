@@ -1,6 +1,6 @@
 services:
   emqx:
-    image: emqx/emqx:5.7.0
+    image: emqx/emqx:5.8.9
     container_name: emqx-local
     environment:
       # ===== Dashboard =====

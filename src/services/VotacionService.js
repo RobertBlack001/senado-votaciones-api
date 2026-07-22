@@ -11,6 +11,10 @@ import NotFoundException from '../exceptions/NotFoundException.js';
 import ConflictException from '../exceptions/ConflictException.js';
 import ResultadoVotacionResponse from '../dtos/responses/ResultadoVotacionResponse.js';
 
+import Publisher from '../mqtt/Publisher.js';
+import MQTTTopics from '../mqtt/MQTTTopics.js';
+import MQTTEvents from '../mqtt/MQTTEvents.js';
+
 class VotacionService {
 
     async obtenerEstado(id) {
@@ -87,6 +91,27 @@ class VotacionService {
         );
 
         await VotacionRepository.update(votacion);
+
+        try {
+
+            await Publisher.publish({
+                topic: MQTTTopics.VOTACION,
+                event: MQTTEvents.VOTACION_INICIADA,
+                data: {
+                    id: votacion.id,
+                    idSesion: votacion.idSesion,
+                    asunto: votacion.asunto,
+                    duracionSegundos: votacion.duracionSegundos,
+                    fechaInicio: votacion.fechaInicio,
+                    fechaFin: votacion.fechaFin
+                }
+            });
+
+        } catch (error) {
+
+            console.error('[MQTT]', error);
+
+        }
 
         return new EstadoVotacionResponse(
             votacion,
@@ -180,6 +205,27 @@ class VotacionService {
 
         await VotacionRepository.update(votacion);
 
+        try {
+
+            await Publisher.publish({
+                topic: MQTTTopics.VOTACION,
+                event: MQTTEvents.VOTACION_CERRADA,
+                data: {
+                    id: votacion.id,
+                    idSesion: votacion.idSesion,
+                    asunto: votacion.asunto,
+                    duracionSegundos: votacion.duracionSegundos,
+                    fechaInicio: votacion.fechaInicio,
+                    fechaFin: votacion.fechaFin
+                }
+            });
+
+        } catch (error) {
+
+            console.error('[MQTT]', error);
+
+        }
+
         // TODO
         // Publicar MQTT de cierre automático
 
@@ -239,6 +285,27 @@ class VotacionService {
         votacion.fechaFinManual = fechaCierre;
 
         await VotacionRepository.update(votacion);
+
+        try {
+
+            await Publisher.publish({
+                topic: MQTTTopics.VOTACION,
+                event: MQTTEvents.VOTACION_CERRADA,
+                data: {
+                    id: votacion.id,
+                    idSesion: votacion.idSesion,
+                    asunto: votacion.asunto,
+                    duracionSegundos: votacion.duracionSegundos,
+                    fechaInicio: votacion.fechaInicio,
+                    fechaFin: votacion.fechaFin
+                }
+            });
+
+        } catch (error) {
+
+            console.error('[MQTT]', error);
+
+        }
 
         // TODO
         // Publicar MQTT de cierre manual
