@@ -4,11 +4,10 @@ class MQTTTopics {
     // Canales generales
     // ==========================
 
-    static SESION = 'senado/sesion';
-
-    static VOTACION = 'senado/votacion';
-
-    static DASHBOARD = 'senado/dashboard';
+    static SESION       = 'senado/sesion';
+    static ASISTENCIA   = 'senado/asistencia';
+    static VOTACION     = 'senado/votacion';
+    static DASHBOARD    = 'senado/dashboard';
 
     // ==========================
     // Tablets

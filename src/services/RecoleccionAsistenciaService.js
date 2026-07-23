@@ -2,6 +2,7 @@ import DateUtils from "../utils/DateUtils.js";
 
 import RecoleccionAsistenciaRepository from "../repositories/RecoleccionAsistenciaRepository.js";
 import RecoleccionAsistencia from "../entities/RecoleccionAsistencia.js";
+import AsistenciaMQTTService from "./AsistenciaMQTTService.js";
 
 import { EstadoRecoleccionAsistencia } from "../common/constants/EstadoRecoleccionAsistencia.js";
 
@@ -31,7 +32,11 @@ class RecoleccionAsistenciaService {
 
         recoleccion.abrir();
 
-        return await RecoleccionAsistenciaRepository.crear(recoleccion);
+        const creada = await RecoleccionAsistenciaRepository.crear(recoleccion);
+
+        await AsistenciaMQTTService.publicarRecoleccionIniciada(creada);
+
+        return creada;
 
     }
 
@@ -48,7 +53,11 @@ class RecoleccionAsistenciaService {
 
         recoleccion.cerrar();
 
-        return await RecoleccionAsistenciaRepository.actualizar(recoleccion);
+        const actualizada = await RecoleccionAsistenciaRepository.actualizar(recoleccion);
+
+        await AsistenciaMQTTService.publicarRecoleccionFinalizada(actualizada);
+
+        return actualizada;
 
     }
 

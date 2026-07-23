@@ -2,6 +2,7 @@ import DateUtils from "../utils/DateUtils.js";
 
 import AsistenciaRepository from "../repositories/AsistenciaRepository.js";
 import RecoleccionAsistenciaService from "./RecoleccionAsistenciaService.js";
+import AsistenciaMQTTService from "./AsistenciaMQTTService.js";
 
 import Asistencia from "../entities/Asistencia.js";
 
@@ -46,7 +47,11 @@ class AsistenciaService {
             observaciones: null
         });
 
-        return await AsistenciaRepository.crear(asistencia);
+        asistencia = await AsistenciaRepository.crear(asistencia);
+
+        await AsistenciaMQTTService.publicarAsistenciaRegistrada(asistencia);
+
+        return asistencia;
 
     }
 
@@ -64,7 +69,11 @@ class AsistenciaService {
             asistencia.origen = OrigenAsistencia.OPERADOR;
             asistencia.observaciones = request.observaciones ?? null;
 
-            return await AsistenciaRepository.actualizar(asistencia);
+            asistencia = await AsistenciaRepository.actualizar(asistencia);
+
+            await AsistenciaMQTTService.publicarTipoAsistenciaActualizado(asistencia);
+
+            return asistencia;
 
         }
 
@@ -78,14 +87,17 @@ class AsistenciaService {
             observaciones: request.observaciones ?? null
         });
 
-        return await AsistenciaRepository.crear(asistencia);
+        asistencia = await AsistenciaRepository.crear(asistencia);
+
+        await AsistenciaMQTTService.publicarAsistenciaRegistrada(asistencia);
+
+        return asistencia;
 
     }
 
     async cambiarTipoAsistencia(idAsistencia, tipoAsistencia, observaciones = null) {
 
-        const asistencia =
-            await AsistenciaRepository.obtenerPorId(idAsistencia);
+        const asistencia = await AsistenciaRepository.obtenerPorId(idAsistencia);
 
         if (!asistencia) {
             throw new NotFoundException(
@@ -97,7 +109,11 @@ class AsistenciaService {
         asistencia.origen = OrigenAsistencia.OPERADOR;
         asistencia.observaciones = observaciones;
 
-        return await AsistenciaRepository.actualizar(asistencia);
+        await AsistenciaRepository.actualizar(asistencia);
+
+        await AsistenciaMQTTService.publicarTipoAsistenciaActualizado(asistencia);
+
+        return asistencia;
 
     }
 

@@ -8,6 +8,15 @@ class MQTTEvents {
     static SESION_FINALIZADA = 'SESION_FINALIZADA';
 
     // ==========================
+    // Asistencia
+    // ==========================
+
+    static RECOLECCION_ASISTENCIA_INICIADA = 'RECOLECCION_ASISTENCIA_INICIADA';
+    static ASISTENCIA_REGISTRADA = 'ASISTENCIA_REGISTRADA';
+    static TIPO_ASISTENCIA_ACTUALIZADO = 'TIPO_ASISTENCIA_ACTUALIZADO';
+    static RECOLECCION_ASISTENCIA_FINALIZADA = 'RECOLECCION_ASISTENCIA_FINALIZADA';
+
+    // ==========================
     // Votaciones
     // ==========================
 
