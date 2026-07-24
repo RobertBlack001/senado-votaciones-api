@@ -55,7 +55,7 @@ router.post(
 
 // Cambiar tipo de asistencia
 router.put(
-    '/api/v1/asistencias/:id',
+    '/api/v1/asistencias/modificar_tipo_asistencia/:id',
     AsistenciaController.cambiarTipo
 );
 

@@ -14,7 +14,17 @@ class MQTTManager {
             MQTTTopics.VOTACION,
             async (message) => {
 
-                console.log('[MQTT] Mensaje recibido:');
+                console.log('[MQTT][VOTACION]:');
+                console.log(message);
+
+            }
+        );
+
+        await Subscriber.subscribe(
+            MQTTTopics.DASHBOARD,
+            async (message) => {
+
+                console.log('[MQTT][DASHBOARD]');
                 console.log(message);
 
             }
@@ -23,6 +33,7 @@ class MQTTManager {
         console.log('[MQTT] Módulo inicializado');
 
     }
+    
 
 }
 

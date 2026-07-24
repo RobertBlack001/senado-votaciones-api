@@ -26,6 +26,20 @@ class Database {
 
     }
 
+    async existsById(table, id) {
+
+        const row = await this.first(
+            `SELECT 1
+            FROM ${table}
+            WHERE id = ?
+            LIMIT 1`,
+            [id]
+        );
+
+        return !!row;
+
+    }
+
 }
 
 export default new Database();

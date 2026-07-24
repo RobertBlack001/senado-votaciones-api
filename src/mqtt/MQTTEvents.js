@@ -27,6 +27,14 @@ class MQTTEvents {
     static VOTO_MODIFICADO = 'VOTO_MODIFICADO';
 
     // ==========================
+    // Solicitud uso de la palabra
+    // ==========================
+
+    static SOLICITUD_USO_PALABRA_REGISTRADA = 'SOLICITUD_USO_PALABRA_REGISTRADA';
+    static SOLICITUD_USO_PALABRA_ACEPTADA = 'SOLICITUD_USO_PALABRA_ACEPTADA';
+    static SOLICITUD_USO_PALABRA_CANCELADA = 'SOLICITUD_USO_PALABRA_CANCELADA';
+
+    // ==========================
     // Tablets
     // ==========================
 
