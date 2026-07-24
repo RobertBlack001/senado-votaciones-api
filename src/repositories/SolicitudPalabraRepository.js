@@ -14,8 +14,9 @@ class SolicitudPalabraRepository {
                 solicitud.estado
             ]);
 
-        solicitud.id = result.insertId;
-        return solicitud;
+        return await this.obtenerPorId(
+            result.insertId
+        );
     }
 
     async actualizarEstado(id, estado) {
